@@ -1,5 +1,6 @@
 import WeatherDisplay from "../WeatherDisplay";
 import type { HourlyWeatherData } from "../weather/type";
+import { celsiusToFahrenheit } from "../Units";
 
 function HourlyWeather({
   hourlyData,
@@ -60,7 +61,7 @@ function HourlyWeather({
                 <div className="text-xl">{hourLabel}</div>
               </div>
               <div className="text-base font-medium mr-2 text-base">
-                {Math.round(data.weatherRn)}°
+                {celsiusToFahrenheit(Math.round(data.weatherRn))}°
               </div>
             </div>
           );

@@ -1,5 +1,4 @@
-import DropDownIcon from "./icons/DropDownIcon";
-import UnitsIcon from "./icons/UnitsIcon";
+import UntilOptions from "./UntilOptions";
 
 function MainMenu() {
   return (
@@ -10,14 +9,14 @@ function MainMenu() {
         <h1 className="flex items-center font-bold text-[22px]">Weather Now</h1>
         {/* font-[bricolage] */}
       </div>
-
-      <div className="flex items-center px-4 py-2 gap-3 rounded-md bg-gray-800">
+      <UntilOptions />
+      {/* <div className="flex items-center px-4 py-2 gap-3 rounded-md bg-gray-800">
         <UnitsIcon />
 
         <span className="text-[16px]">Units</span>
 
         <DropDownIcon className="mt-[13px] " />
-      </div>
+      </div> */}
     </nav>
   );
 }

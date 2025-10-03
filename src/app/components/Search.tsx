@@ -28,6 +28,7 @@ function Search() {
   const [error, setError] = useState<string>("");
   const [weekWeather, setWeekWeather] = useState<WeatherData[]>([]);
   const [hourlyData, setHourlyData] = useState<HourlyWeatherData[]>([]);
+  const [fahrenheitTemp, setFahrenheitTemp] = useState<boolean>(false);
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
@@ -164,6 +165,8 @@ function Search() {
             selectedDate={localSelectedDate}
             setSelectedDate={setLocalSelectedDate}
             days={days}
+            // fahrenheitTemp={fahrenheitTemp}
+            // setFahrenheitTemp={setFahrenheitTemp}
           />
         </nav>
       </div>
