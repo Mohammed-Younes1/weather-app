@@ -1,10 +1,13 @@
 "use client";
 import SearchIcon from "./icons/SearchIcon";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import WeatherInfo from "./weather/WeatherInfo";
 import MainWeather from "./weather/MainWeather";
 import DailyWeather from "./weather/DailyWeather";
+import HourlyWeather from "./weather/HourlyWeather";
+
+import type { HourlyWeatherData } from "./weather/type";
 
 interface WeatherData {
   location: string;
@@ -24,6 +27,18 @@ function Search() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [weekWeather, setWeekWeather] = useState<WeatherData[]>([]);
+  const [hourlyData, setHourlyData] = useState<HourlyWeatherData[]>([]);
+
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  const days = useMemo(
+    () => Array.from(new Set(hourlyData.map((d) => d.date))),
+    [hourlyData]
+  );
+
+  const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(
+    selectedDay || days[0] || null
+  );
 
   const handleSearch = async () => {
     setLoading(true);
@@ -42,8 +57,11 @@ function Search() {
       }
       const { latitude, longitude, name, country } = geoData.results[0];
 
+      // const weatherRes = await fetch(
+      //   `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,dew_point_2m_max,weathercode&timezone=auto`
+      // );
       const weatherRes = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,dew_point_2m_max,weathercode&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&hourly=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,dew_point_2m_max,weathercode,sunrise,sunset&timezone=auto`
       );
 
       const weatherData = await weatherRes.json();
@@ -81,7 +99,21 @@ function Search() {
         })
       );
 
+      const hourlyData: HourlyWeatherData[] = weatherData.hourly.time.map(
+        (time: string, index: number) => {
+          const dt = new Date(time);
+
+          return {
+            time,
+            date: dt.toLocaleDateString("en-US", { weekday: "long" }),
+            dew_point: weatherData.hourly.dew_point_2m[index],
+            weatherRn: weatherData.hourly.temperature_2m[index],
+            weatherCode: weatherData.hourly.weathercode[index],
+          };
+        }
+      );
       setWeekWeather(dailyWeather);
+      setHourlyData(hourlyData);
     } catch (err) {
       setError("Failed to fetch weather data");
     } finally {
@@ -111,15 +143,29 @@ function Search() {
           {loading ? "Searching" : "Search"}
         </button>
       </div>
-      <div className="px-[8%]">
-        <MainWeather weather={weather} />
-      </div>
-      <div className="px-[8%]">
-        <WeatherInfo weather={weather} />
-      </div>
-      <div className="px-[8%] py-7">
-        <h1 className="text-xl font-semibold  pb-4">Daily forecast</h1>
-        <DailyWeather weekWeather={weekWeather} />
+      {/* main left */}
+      <div className="flex justify-between px-[8%]">
+        <nav>
+          <div className="">
+            <MainWeather weather={weather} />
+          </div>
+          <div className="">
+            <WeatherInfo weather={weather} />
+          </div>
+          <div className=" py-7">
+            <h1 className="text-xl font-semibold  pb-4">Daily forecast</h1>
+            <DailyWeather weekWeather={weekWeather} />
+          </div>
+        </nav>
+        {/* main right */}
+        <nav className="py-6">
+          <HourlyWeather
+            hourlyData={hourlyData}
+            selectedDate={localSelectedDate}
+            setSelectedDate={setLocalSelectedDate}
+            days={days}
+          />
+        </nav>
       </div>
     </>
   );
