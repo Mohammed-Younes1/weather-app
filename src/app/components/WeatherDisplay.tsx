@@ -1,4 +1,5 @@
 import React from "react";
+import type { WeatherDisplayProps } from "./weather/type";
 
 const weatherCategoryMap: Record<
   number,
@@ -45,12 +46,6 @@ const weatherImageMap: Record<
   rain: "/icon-rain.webp",
   snow: "/icon-snow.webp",
   storm: "/icon-storm.webp",
-};
-
-type WeatherDisplayProps = {
-  code: number;
-  width?: string;
-  height?: string;
 };
 
 export const WeatherDisplay: React.FC<WeatherDisplayProps> = ({

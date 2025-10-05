@@ -1,3 +1,4 @@
+import { celsiusToFahrenheit } from "../Units";
 import WeatherDisplay from "../WeatherDisplay";
 import type { HourlyWeatherData } from "../weather/type";
 
@@ -6,11 +7,13 @@ function HourlyWeather({
   selectedDate,
   setSelectedDate,
   days,
+  unit,
 }: {
   hourlyData: HourlyWeatherData[];
   selectedDate: string | null;
   setSelectedDate: (date: string | null) => void;
   days: string[];
+  unit: "C" | "F";
 }) {
   const filteredData = hourlyData.filter((data) => {
     if (!data.time) return false;
@@ -45,7 +48,8 @@ function HourlyWeather({
             hour: "numeric",
             hour12: true,
           });
-
+          const temp =
+            unit === "F" ? celsiusToFahrenheit(data.weatherRn) : data.weatherRn;
           return (
             <div
               key={data.time}
@@ -60,7 +64,7 @@ function HourlyWeather({
                 <div className="text-xl">{hourLabel}</div>
               </div>
               <div className="text-base font-medium mr-2 text-base">
-                {Math.round(data.weatherRn)}°
+                {Math.round(temp)}°{unit}
               </div>
             </div>
           );
