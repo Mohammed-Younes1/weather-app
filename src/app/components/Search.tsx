@@ -6,30 +6,25 @@ import WeatherInfo from "./weather/WeatherInfo";
 import MainWeather from "./weather/MainWeather";
 import DailyWeather from "./weather/DailyWeather";
 import HourlyWeather from "./weather/HourlyWeather";
-
+import { celsiusToFahrenheit, kmhToMph, mmToInches } from "./Units";
+import type { WeatherData } from "./weather/type";
 import type { HourlyWeatherData } from "./weather/type";
 
-interface WeatherData {
-  location: string;
-  date: string;
-  dew_point: number;
-  weatherRn: number;
-  feelsLike: number;
-  humidity: number;
-  wind: number;
-  precipitation: number;
-  weatherCode: number;
-}
-
-function Search() {
+function Search({
+  unit,
+  windSpeedUnit,
+  precipitationUnit,
+}: {
+  unit: "C" | "F";
+  windSpeedUnit: "km/h" | "mph";
+  precipitationUnit: "mm" | "in";
+}) {
   const [query, setQuery] = useState<string>("");
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [weekWeather, setWeekWeather] = useState<WeatherData[]>([]);
   const [hourlyData, setHourlyData] = useState<HourlyWeatherData[]>([]);
-  const [fahrenheitTemp, setFahrenheitTemp] = useState<boolean>(false);
-
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const days = useMemo(
@@ -40,6 +35,28 @@ function Search() {
   const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(
     selectedDay || days[0] || null
   );
+
+  const convertTemperature = (tempInCelsius: number) => {
+    return unit === "F" ? celsiusToFahrenheit(tempInCelsius) : tempInCelsius;
+  };
+
+  const convertWindSpeed = (windSpeedInKmh: number) => {
+    return windSpeedUnit === "mph" ? kmhToMph(windSpeedInKmh) : windSpeedInKmh;
+  };
+
+  const convertPrecipitation = (precipitationInMm: number) => {
+    return precipitationUnit === "in"
+      ? mmToInches(precipitationInMm)
+      : precipitationInMm;
+  };
+
+  const currentTempUnit = weather
+    ? convertTemperature(weather.weatherRn)
+    : null;
+  const currentWindSpeedUnit = weather ? convertWindSpeed(weather.wind) : null;
+  const currentPrecipitationUnit = weather
+    ? convertPrecipitation(weather.precipitation)
+    : null;
 
   const handleSearch = async () => {
     setLoading(true);
@@ -113,9 +130,12 @@ function Search() {
           };
         }
       );
+
       setWeekWeather(dailyWeather);
+
       setHourlyData(hourlyData);
     } catch (err) {
+      // console.error(err, error);
       setError("Failed to fetch weather data");
     } finally {
       setLoading(false);
@@ -148,14 +168,32 @@ function Search() {
       <div className="flex justify-between px-[8%]">
         <nav>
           <div className="">
-            <MainWeather weather={weather} />
+            <MainWeather
+              weather={{
+                ...weather,
+                weatherRn: currentTempUnit ?? weather?.weatherRn ?? 0,
+              }}
+              unit={unit}
+            />
+            {/* <MainWeather weather={weather} /> */}
           </div>
           <div className="">
-            <WeatherInfo weather={weather} />
+            <WeatherInfo
+              weather={{
+                ...weather,
+                feelsLike: currentTempUnit ?? 0,
+                wind: currentWindSpeedUnit ?? 0,
+                precipitation: currentPrecipitationUnit ?? 0,
+              }}
+              unit={unit}
+              windSpeedUnit={windSpeedUnit}
+              precipitationUnit={precipitationUnit}
+            />
+            {/* <WeatherInfo weather={weather} /> */}
           </div>
           <div className=" py-7">
             <h1 className="text-xl font-semibold  pb-4">Daily forecast</h1>
-            <DailyWeather weekWeather={weekWeather} />
+            <DailyWeather weekWeather={weekWeather} unit={unit} />
           </div>
         </nav>
         {/* main right */}
@@ -165,8 +203,7 @@ function Search() {
             selectedDate={localSelectedDate}
             setSelectedDate={setLocalSelectedDate}
             days={days}
-            // fahrenheitTemp={fahrenheitTemp}
-            // setFahrenheitTemp={setFahrenheitTemp}
+            unit={unit}
           />
         </nav>
       </div>

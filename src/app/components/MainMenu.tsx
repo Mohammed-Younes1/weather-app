@@ -1,6 +1,14 @@
 import UntilOptions from "./UntilOptions";
 
-function MainMenu() {
+function MainMenu({
+  setUnit,
+  setWindSpeedUnit,
+  setPrecipitationUnit,
+}: {
+  setUnit: (unit: "C" | "F") => void;
+  setWindSpeedUnit: (unit: "km/h" | "mph") => void;
+  setPrecipitationUnit: (unit: "mm" | "in") => void;
+}) {
   return (
     <nav className="flex justify-between px-[16%] py-[48px]">
       <div className="flex  gap-3">
@@ -9,14 +17,12 @@ function MainMenu() {
         <h1 className="flex items-center font-bold text-[22px]">Weather Now</h1>
         {/* font-[bricolage] */}
       </div>
-      <UntilOptions />
-      {/* <div className="flex items-center px-4 py-2 gap-3 rounded-md bg-gray-800">
-        <UnitsIcon />
 
-        <span className="text-[16px]">Units</span>
-
-        <DropDownIcon className="mt-[13px] " />
-      </div> */}
+      <UntilOptions
+        setUnit={setUnit}
+        setWindSpeedUnit={setWindSpeedUnit}
+        setPrecipitationUnit={setPrecipitationUnit}
+      />
     </nav>
   );
 }

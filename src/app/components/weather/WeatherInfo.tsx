@@ -1,23 +1,37 @@
-type WeatherData = {
-  feelsLike: number;
-  humidity: number;
-  wind: number;
-  precipitation: number;
-};
-
-function WeatherInfo({ weather }: { weather: WeatherData | null }) {
-  console.log(weather);
+import type { WeatherDataInfo } from "../weather/type";
+function WeatherInfo({
+  weather,
+  unit,
+  windSpeedUnit,
+  precipitationUnit,
+}: {
+  weather: WeatherDataInfo;
+  unit: "C" | "F";
+  windSpeedUnit: "km/h" | "mph";
+  precipitationUnit: "mm" | "in";
+}) {
   return (
     <nav className="flex justify-items-start">
       {weather ? (
         <>
           {[
-            { label: "Feels Like", value: `${weather.feelsLike}°` },
-            { label: "Humidity", value: `${weather.humidity.toFixed(0)}%` },
-            { label: "Wind", value: `${weather.wind.toFixed(0)} km/h` },
+            {
+              label: "Feels Like",
+              value: `${weather.feelsLike}°${unit}`,
+            },
+            {
+              label: "Humidity",
+              value: `${weather.humidity?.toFixed(0) ?? 0}%`,
+            },
+            {
+              label: "Wind",
+              value: `${(weather.wind ?? 0).toFixed(0)} ${windSpeedUnit}`,
+            },
             {
               label: "Precipitation",
-              value: `${weather.precipitation.toFixed(0)} mm`,
+              value: `${
+                weather.precipitation?.toFixed(0) ?? 0
+              } ${precipitationUnit}`,
             },
           ].map(({ label, value }) => (
             <div
