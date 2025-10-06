@@ -1,7 +1,7 @@
 "use client";
 import SearchIcon from "./icons/SearchIcon";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import WeatherInfo from "./weather/WeatherInfo";
 import MainWeather from "./weather/MainWeather";
 import DailyWeather from "./weather/DailyWeather";
@@ -26,6 +26,7 @@ function Search({
   const [weekWeather, setWeekWeather] = useState<WeatherData[]>([]);
   const [hourlyData, setHourlyData] = useState<HourlyWeatherData[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [dataFetched, setDataFetched] = useState<string>("");
 
   const days = useMemo(
     () => Array.from(new Set(hourlyData.map((d) => d.date))),
@@ -35,6 +36,14 @@ function Search({
   const [localSelectedDate, setLocalSelectedDate] = useState<string | null>(
     selectedDay || days[0] || null
   );
+
+  useEffect(() => {
+    if (days.length > 0) {
+      const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+      const match = days.find((d) => d === today);
+      setLocalSelectedDate(match || days[0]);
+    }
+  }, [days]);
 
   const convertTemperature = (tempInCelsius: number) => {
     return unit === "F" ? celsiusToFahrenheit(tempInCelsius) : tempInCelsius;
@@ -58,88 +67,98 @@ function Search({
     ? convertPrecipitation(weather.precipitation)
     : null;
 
-  const handleSearch = async () => {
-    setLoading(true);
-    setError("");
+  useEffect(() => {
+    if (!dataFetched) return;
 
-    try {
-      const geoRes = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${query}`
-      );
-      const geoData = await geoRes.json();
+    const fetchWeather = async () => {
+      setLoading(true);
+      setError("");
 
-      if (!geoData.results || geoData.results.length === 0) {
-        setError("Location not found");
-        setLoading(false);
-        return;
-      }
-      const { latitude, longitude, name, country } = geoData.results[0];
+      try {
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${dataFetched}`
+        );
+        const geoData = await geoRes.json();
 
-      // const weatherRes = await fetch(
-      //   `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,dew_point_2m_max,weathercode&timezone=auto`
-      // );
-      const weatherRes = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&hourly=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,dew_point_2m_max,weathercode,sunrise,sunset&timezone=auto`
-      );
-
-      const weatherData = await weatherRes.json();
-
-      const currentWeather = weatherData.current;
-
-      const now = new Date();
-      const formattedDate = now.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
-      setWeather({
-        location: `${name}, ${country}`,
-        date: formattedDate,
-        dew_point: currentWeather.dew_point_2m,
-        weatherRn: currentWeather.temperature_2m,
-        feelsLike: currentWeather.apparent_temperature,
-        humidity: currentWeather.relative_humidity_2m,
-        wind: currentWeather.wind_speed_10m,
-        precipitation: currentWeather.precipitation,
-        weatherCode: weatherData.current.weathercode,
-      });
-
-      const dailyWeather: WeatherData[] = weatherData.daily.time.map(
-        (date: string, index: number) => ({
-          date: new Date(date).toLocaleDateString("en-US", {
-            weekday: "short",
-          }),
-          dew_point: weatherData.daily.dew_point_2m_max[index],
-          weatherRn: weatherData.daily.temperature_2m_max[index],
-          weatherCode: weatherData.daily.weathercode[index],
-        })
-      );
-
-      const hourlyData: HourlyWeatherData[] = weatherData.hourly.time.map(
-        (time: string, index: number) => {
-          const dt = new Date(time);
-
-          return {
-            time,
-            date: dt.toLocaleDateString("en-US", { weekday: "long" }),
-            dew_point: weatherData.hourly.dew_point_2m[index],
-            weatherRn: weatherData.hourly.temperature_2m[index],
-            weatherCode: weatherData.hourly.weathercode[index],
-          };
+        if (!geoData.results || geoData.results.length === 0) {
+          setError("Location not found");
+          setLoading(false);
+          return;
         }
-      );
+        const { latitude, longitude, name, country } = geoData.results[0];
 
-      setWeekWeather(dailyWeather);
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&hourly=temperature_2m,dew_point_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,precipitation,weathercode&daily=temperature_2m_max,temperature_2m_min,dew_point_2m_max,weathercode,sunrise,sunset&timezone=auto`
+        );
 
-      setHourlyData(hourlyData);
-    } catch (err) {
-      // console.error(err, error);
-      setError("Failed to fetch weather data");
-    } finally {
-      setLoading(false);
-    }
+        const weatherData = await weatherRes.json();
+
+        const currentWeather = weatherData.current;
+
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+
+        setWeather({
+          location: `${name}, ${country}`,
+          date: formattedDate,
+          dew_point: currentWeather.dew_point_2m,
+          weatherRn: currentWeather.temperature_2m,
+          feelsLike: currentWeather.apparent_temperature,
+          humidity: currentWeather.relative_humidity_2m,
+          wind: currentWeather.wind_speed_10m,
+          precipitation: currentWeather.precipitation,
+          weatherCode: weatherData.current.weathercode,
+        });
+
+        const dailyWeather: WeatherData[] = weatherData.daily.time.map(
+          (date: string, index: number) => ({
+            date: new Date(date).toLocaleDateString("en-US", {
+              weekday: "short",
+            }),
+            dew_point: weatherData.daily.dew_point_2m_max[index],
+            weatherRn: weatherData.daily.temperature_2m_max[index],
+            weatherCode: weatherData.daily.weathercode[index],
+          })
+        );
+
+        const hourlyData: HourlyWeatherData[] = weatherData.hourly.time.map(
+          (time: string, index: number) => {
+            const dt = new Date(time);
+
+            return {
+              time,
+              date: dt.toLocaleDateString("en-US", { weekday: "long" }),
+              dew_point: weatherData.hourly.dew_point_2m[index],
+              weatherRn: weatherData.hourly.temperature_2m[index],
+              weatherCode: weatherData.hourly.weathercode[index],
+            };
+          }
+        );
+
+        setWeekWeather(dailyWeather);
+
+        setHourlyData(hourlyData);
+      } catch (err) {
+        // console.error(err, error);
+        setError("Failed to fetch weather data");
+      } finally {
+        setTimeout(() => setLoading(false), 4000);
+        // setLoading(false);
+      }
+    };
+
+    fetchWeather();
+  }, [dataFetched]);
+
+  const handleSearchClick = () => {
+    if (!query.trim()) return;
+    setError("");
+    setDataFetched(query.trim());
   };
 
   return (
@@ -151,33 +170,46 @@ function Search({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search for a place..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !loading) {
+                handleSearchClick();
+              }
+            }}
+            disabled={loading}
             className="rounded-md bg-gray-800 min-w-[526px] min-h-[52px] py-2 mr-4 pl-13"
           />
+
           <SearchIcon className="absolute left-4" />
         </div>
-
         <button
-          className="rounded-md bg-blue-500 px-4 font-medium text-xl font-[dmSans] min-w-[114px] min-h-[51px] hover:bg-blue-700"
-          onClick={handleSearch}
+          className={`rounded-md bg-blue-500 px-4 font-medium text-xl font-[dmSans] min-w-[114px] min-h-[51px] hover:bg-blue-700 ${
+            loading ? "cursor-wait bg-gray-700 opacity-60" : "bg-blue-500"
+          }`}
+          onClick={handleSearchClick}
           disabled={loading}
         >
           {loading ? "Searching" : "Search"}
         </button>
       </div>
       {/* main left */}
-      <div className="flex justify-between px-[8%]">
-        <nav>
-          <div className="">
+
+      {error && (
+        <div className="text-center text-red-500 font-semibold mb-4">
+          {error}
+        </div>
+      )}
+
+      {weather && !error && (
+        <div className="flex justify-between px-[8%]">
+          <nav>
             <MainWeather
               weather={{
                 ...weather,
                 weatherRn: currentTempUnit ?? weather?.weatherRn ?? 0,
               }}
               unit={unit}
+              loading={loading}
             />
-            {/* <MainWeather weather={weather} /> */}
-          </div>
-          <div className="">
             <WeatherInfo
               weather={{
                 ...weather,
@@ -188,25 +220,30 @@ function Search({
               unit={unit}
               windSpeedUnit={windSpeedUnit}
               precipitationUnit={precipitationUnit}
+              loading={loading}
             />
-            {/* <WeatherInfo weather={weather} /> */}
-          </div>
-          <div className=" py-7">
-            <h1 className="text-xl font-semibold  pb-4">Daily forecast</h1>
-            <DailyWeather weekWeather={weekWeather} unit={unit} />
-          </div>
-        </nav>
-        {/* main right */}
-        <nav className="py-6">
-          <HourlyWeather
-            hourlyData={hourlyData}
-            selectedDate={localSelectedDate}
-            setSelectedDate={setLocalSelectedDate}
-            days={days}
-            unit={unit}
-          />
-        </nav>
-      </div>
+            <div className=" py-7">
+              <h1 className="text-xl font-semibold  pb-4">Daily forecast</h1>
+              <DailyWeather
+                weekWeather={weekWeather}
+                unit={unit}
+                loading={loading}
+              />
+            </div>
+          </nav>
+          {/* main right */}
+          <nav className="py-6">
+            <HourlyWeather
+              hourlyData={hourlyData}
+              selectedDate={localSelectedDate}
+              setSelectedDate={setLocalSelectedDate}
+              days={days}
+              unit={unit}
+              loading={loading}
+            />
+          </nav>
+        </div>
+      )}
     </>
   );
 }

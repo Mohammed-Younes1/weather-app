@@ -8,12 +8,14 @@ function HourlyWeather({
   setSelectedDate,
   days,
   unit,
+  loading,
 }: {
   hourlyData: HourlyWeatherData[];
   selectedDate: string | null;
   setSelectedDate: (date: string | null) => void;
   days: string[];
   unit: "C" | "F";
+  loading: boolean;
 }) {
   const filteredData = hourlyData.filter((data) => {
     if (!data.time) return false;
@@ -26,7 +28,11 @@ function HourlyWeather({
   });
 
   return (
-    <nav className="block bg-gray-800 rounded-lg">
+    <nav
+      className={`block bg-gray-800 rounded-lg ${
+        loading ? "animate-pulse" : ""
+      }`}
+    >
       <div className="flex justify-between items-center px-4 py-2">
         <h1 className="text-xl font-medium">Hourly forecast</h1>
         <select
@@ -36,23 +42,38 @@ function HourlyWeather({
         >
           {days.map((day) => (
             <option key={day} value={day}>
-              {day}
+              {loading ? "-" : day}
             </option>
           ))}
         </select>
       </div>
+
       <div className="max-h-[609px] overflow-y-auto pr-2">
-        {filteredData.map((data) => {
+        {(loading ? Array(10).fill(null) : filteredData).map((data, index) => {
+          if (loading) {
+            return (
+              <div
+                key={index}
+                className="flex text-lg border border-gray-600 bg-gray-600 rounded-lg w-[336px] h-[60px] mx-2 my-4 animate-pulse"
+              />
+            );
+          }
+
           const dt = new Date(data.time);
           const hourLabel = dt.toLocaleTimeString([], {
             hour: "numeric",
             hour12: true,
           });
           const temp =
-            unit === "F" ? celsiusToFahrenheit(data.weatherRn) : data.weatherRn;
+            !loading && data
+              ? unit === "F"
+                ? celsiusToFahrenheit(data.weatherRn)
+                : data.weatherRn
+              : null;
+
           return (
             <div
-              key={data.time}
+              key={loading ? index : data.time}
               className="flex text-lg border border-gray-600 bg-gray-600 rounded-lg w-[336px] h-[60px] mx-2 my-4 items-center justify-between"
             >
               <div className="flex items-center gap-4">
