@@ -11,11 +11,13 @@ function WeatherApp() {
   return (
     <div>
       <MainMenu
+        unit={unit}
+        windSpeedUnit={windSpeedUnit}
+        precipitationUnit={precipitationUnit}
         setUnit={setUnit}
         setWindSpeedUnit={setWindSpeedUnit}
         setPrecipitationUnit={setPrecipitationUnit}
       />
-
       <h1 className="text-[52px] text-center font-bold py-[35px]">
         How&apos;s the sky looking today?
       </h1>

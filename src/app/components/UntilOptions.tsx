@@ -1,23 +1,30 @@
 "use client";
 
+import CheckIcon from "./icons/CheckIcon";
 import DropDownIcon from "./icons/DropDownIcon";
 import UnitsIcon from "./icons/UnitsIcon";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const options = [
-  { id: 1, name: "Celsius (°C)" },
-  { id: 2, name: "Fahrenheit (°F)" },
-  { id: 3, name: "km/h" },
-  { id: 4, name: "mph" },
-  { id: 5, name: "Millimeter (mm)" },
-  { id: 6, name: "Inches (in)" },
+  { id: 1, name: "Celsius (°C)", key: "C" },
+  { id: 2, name: "Fahrenheit (°F)", key: "F" },
+  { id: 3, name: "km/h", key: "km/h" },
+  { id: 4, name: "mph", key: "mph" },
+  { id: 5, name: "Millimeter (mm)", key: "mm" },
+  { id: 6, name: "Inches (in)", key: "in" },
 ];
 
 function UntilOptions({
+  unit,
+  windSpeedUnit,
+  precipitationUnit,
   setUnit,
   setWindSpeedUnit,
   setPrecipitationUnit,
 }: {
+  unit: "C" | "F";
+  windSpeedUnit: "km/h" | "mph";
+  precipitationUnit: "mm" | "in";
   setUnit: (unit: "C" | "F") => void;
   setWindSpeedUnit: (unit: "km/h" | "mph") => void;
   setPrecipitationUnit: (unit: "mm" | "in") => void;
@@ -45,6 +52,7 @@ function UntilOptions({
             </button>
           </MenuItem>
 
+          {/* Temperature label */}
           <MenuItem>
             <button
               className="flex items-center justify-start px-2 py-2 text-gray-300 text-sm w-[90%] m-auto"
@@ -54,23 +62,22 @@ function UntilOptions({
             </button>
           </MenuItem>
 
-          <MenuItem>
-            <button
-              onClick={() => setUnit("C")}
-              className="flex items-center justify-start px-2 py-2 text-base w-[90%] m-auto hover:bg-white/10 rounded-md"
-            >
-              {options[0].name}
-            </button>
-          </MenuItem>
-
-          <MenuItem>
-            <button
-              onClick={() => setUnit("F")}
-              className="flex items-center justify-start px-2 w-[90%] m-auto py-2 text-base hover:bg-white/10 rounded-md"
-            >
-              {options[1].name}
-            </button>
-          </MenuItem>
+          {[options[0], options[1]].map(({ id, name, key }) => {
+            const isSelected = unit === key;
+            return (
+              <MenuItem key={id}>
+                <button
+                  onClick={() => setUnit(key as "C" | "F")}
+                  className={`flex justify-between items-center px-3 py-2 w-full rounded-md text-base ${
+                    isSelected ? "bg-gray-700" : "hover:bg-white/10"
+                  }`}
+                >
+                  {name}
+                  {isSelected && <CheckIcon />}
+                </button>
+              </MenuItem>
+            );
+          })}
 
           <div className="my-1 h-px bg-white/5" />
           {/* speed */}
@@ -83,43 +90,51 @@ function UntilOptions({
             </button>
           </MenuItem>
 
-          <MenuItem>
-            <button
-              onClick={() => setWindSpeedUnit("km/h")}
-              className="flex items-center justify-start px-2 w-[90%] m-auto py-2 text-base hover:bg-white/10 rounded-md"
-            >
-              {options[2].name}
-            </button>
-          </MenuItem>
-
-          <MenuItem>
-            <button
-              onClick={() => setWindSpeedUnit("mph")}
-              className="flex items-center justify-start px-2 w-[90%] m-auto py-2 text-base hover:bg-white/10 rounded-md"
-            >
-              {options[3].name}
-            </button>
-          </MenuItem>
+          {[options[2], options[3]].map(({ id, name, key }) => {
+            const isSelected = windSpeedUnit === key;
+            return (
+              <MenuItem key={id}>
+                <button
+                  onClick={() => setWindSpeedUnit(key as "km/h" | "mph")}
+                  className={`flex justify-between items-center px-3 py-2 w-full rounded-md text-base ${
+                    isSelected ? "bg-gray-700" : "hover:bg-white/10"
+                  }`}
+                >
+                  {name}
+                  {isSelected && <CheckIcon />}
+                </button>
+              </MenuItem>
+            );
+          })}
 
           <div className="my-1 h-px bg-white/5" />
           {/* precipitation */}
-          <MenuItem>
-            <button
-              onClick={() => setPrecipitationUnit("mm")}
-              className="flex items-center justify-start px-2 w-[90%] m-auto py-2 text-base hover:bg-white/10 rounded-md"
-            >
-              {options[4].name}
-            </button>
-          </MenuItem>
 
           <MenuItem>
             <button
-              onClick={() => setPrecipitationUnit("in")}
-              className="flex items-center justify-start px-2 w-[90%] m-auto py-2 text-base hover:bg-white/10 rounded-md"
+              className="flex items-center justify-start px-2 w-[90%] m-auto py-2 text-gray-300 text-sm"
+              disabled
             >
-              {options[5].name}
+              Precipitation
             </button>
           </MenuItem>
+
+          {[options[4], options[5]].map(({ id, name, key }) => {
+            const isSelected = precipitationUnit === key;
+            return (
+              <MenuItem key={id}>
+                <button
+                  onClick={() => setPrecipitationUnit(key as "mm" | "in")}
+                  className={`flex justify-between items-center px-3 py-2 w-full rounded-md text-base ${
+                    isSelected ? "bg-gray-700" : "hover:bg-white/10"
+                  }`}
+                >
+                  {name}
+                  {isSelected && <CheckIcon />}
+                </button>
+              </MenuItem>
+            );
+          })}
         </MenuItems>
       </Menu>
     </div>

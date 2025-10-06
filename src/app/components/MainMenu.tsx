@@ -1,10 +1,16 @@
 import UntilOptions from "./UntilOptions";
 
 function MainMenu({
+  unit,
+  windSpeedUnit,
+  precipitationUnit,
   setUnit,
   setWindSpeedUnit,
   setPrecipitationUnit,
 }: {
+  unit: "C" | "F";
+  windSpeedUnit: "km/h" | "mph";
+  precipitationUnit: "mm" | "in";
   setUnit: (unit: "C" | "F") => void;
   setWindSpeedUnit: (unit: "km/h" | "mph") => void;
   setPrecipitationUnit: (unit: "mm" | "in") => void;
@@ -19,6 +25,9 @@ function MainMenu({
       </div>
 
       <UntilOptions
+        unit={unit}
+        windSpeedUnit={windSpeedUnit}
+        precipitationUnit={precipitationUnit}
         setUnit={setUnit}
         setWindSpeedUnit={setWindSpeedUnit}
         setPrecipitationUnit={setPrecipitationUnit}
