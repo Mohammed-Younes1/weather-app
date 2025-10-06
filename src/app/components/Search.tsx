@@ -147,7 +147,7 @@ function Search({
         // console.error(err, error);
         setError("Failed to fetch weather data");
       } finally {
-        setTimeout(() => setLoading(false), 4000);
+        setTimeout(() => setLoading(false), 1000);
         // setLoading(false);
       }
     };
