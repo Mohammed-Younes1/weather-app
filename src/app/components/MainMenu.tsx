@@ -1,4 +1,5 @@
 import UntilOptions from "./UntilOptions";
+import Image from "next/image";
 
 function MainMenu({
   unit,
@@ -18,7 +19,13 @@ function MainMenu({
   return (
     <nav className="flex justify-between px-[16%] py-[48px]">
       <div className="flex  gap-3">
-        <img src={"/logo.svg"} alt="Logo" className="h-[40px] w-[40px] mt-1" />
+        <Image
+          src={"/logo.svg"}
+          alt="Logo"
+          width={40}
+          height={40}
+          className=" mt-1 "
+        />
 
         <h1 className="flex items-center font-bold text-[22px]">Weather Now</h1>
         {/* font-[bricolage] */}

@@ -13,7 +13,7 @@ function WeatherInfo({
   loading: boolean;
 }) {
   return (
-    <nav className="flex gap-6 ">
+    <nav className="flex gap-6 lg:justify-start sm:justify-center  py-2">
       {weather ? (
         <>
           {[
@@ -38,7 +38,7 @@ function WeatherInfo({
           ].map(({ label, value }) => (
             <div
               key={label}
-              className={`flex flex-col text-lg border-[1px] border-gray-600 bg-gray-800 rounded-lg min-w-[182px] h-[118px] py-3 px-5 ${
+              className={`flex flex-col justify-center text-lg border-[1px] border-gray-600 bg-gray-800 rounded-lg lg:min-w-[182px] sm:w-[150px]  h-[118px] py-3 px-5 ${
                 loading ? "animate-pulse" : ""
               }`}
             >

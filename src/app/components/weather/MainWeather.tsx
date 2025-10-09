@@ -12,14 +12,14 @@ function MainWeather({
   loading: boolean;
 }) {
   return (
-    <nav className="flex py-6">
+    <nav className="flex py-6 sm:justify-center">
       {loading ? (
         <Image
           width={800}
           height={286}
           src={"loading.svg"}
           alt="Main Weather"
-          className="relative "
+          className="relative xl:w-[800px] max-w-full md:w-[720px] sm:w-[650px]"
         />
       ) : (
         <>
@@ -28,16 +28,18 @@ function MainWeather({
             height={286}
             src={"bg-today-large.svg"}
             alt="Main Weather"
-            className="relative "
+            className="relative xl:w-[800px] max-w-full lg:w-[720px] sm:w-[650px]"
           />
 
           {weather && (
-            <div className="absolute flex items-center justify-around w-[56%] bottom-[33%] text-white">
+            <div className="absolute flex items-center lg:justify-around lg:w-[780px] lg:bottom-[285px] md:bottom-[330px] text-white">
               <div>
-                <div className="text-[28px] font-bold">{weather.location}</div>
-                <div className="text-lg">{weather.date}</div>
+                <div className="lg:text-[28px] sm:text-[24px] font-bold">
+                  {weather.location}
+                </div>
+                <div className="lg:text-lg">{weather.date}</div>
               </div>
-              <div className="mr-[-110px]">
+              <div className="lg:mr-[-110px] sm:ml-[30px] sm:mr-[-20px]">
                 <WeatherDisplay
                   code={weather.weatherCode ?? 0}
                   height="120px"
@@ -45,7 +47,7 @@ function MainWeather({
                 />
               </div>
 
-              <div className="text-8xl font-semibold">
+              <div className="lg:text-8xl sm:text-6xl font-semibold">
                 {weather?.weatherRn}°{unit}
               </div>
             </div>

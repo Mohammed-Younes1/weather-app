@@ -19,22 +19,19 @@ function HourlyWeather({
 }) {
   const filteredData = hourlyData.filter((data) => {
     if (!data.time) return false;
-
-    // const dt = new Date(data.time); // now works because `time` is ISO
-    // const hour = dt.getHours();
-
-    // return data.date === selectedDate && hour >= 15 && hour <= 22;
     return data.date === selectedDate;
   });
 
   return (
     <nav
-      className={`block bg-gray-800 rounded-lg ${
+      className={`block bg-gray-800 rounded-lg px-2 lg:w-[350px] md:w-[680px] sm:w-[600px] lg:w-full mx-auto${
         loading ? "animate-pulse" : ""
       }`}
     >
-      <div className="flex justify-between items-center px-4 py-2">
-        <h1 className="text-xl font-medium">Hourly forecast</h1>
+      <div className="flex flex-wrap justify-between items-center px-4 py-2 gap-2 ">
+        <h1 className="lg:text-xl font-medium text-white xlg:text-red-500">
+          Hourly forecast
+        </h1>
         <select
           value={selectedDate ?? ""}
           onChange={(e) => setSelectedDate(e.target.value)}
@@ -48,13 +45,13 @@ function HourlyWeather({
         </select>
       </div>
 
-      <div className="max-h-[609px] overflow-y-auto pr-2">
+      <div className="max-h-[609px]  overflow-y-auto pr-2 flex flex-col items-center">
         {(loading ? Array(10).fill(null) : filteredData).map((data, index) => {
           if (loading) {
             return (
               <div
                 key={index}
-                className="flex text-lg border border-gray-600 bg-gray-600 rounded-lg w-[336px] h-[60px] mx-2 my-4 animate-pulse"
+                className="flex text-lg border border-gray-600 bg-gray-600 rounded-lg w-full max-w-[336px] sm:max-w-[400px] md:max-w-[480px] lg:max-w-[600px] h-[60px] mx-2 my-3 animate-pulse"
               />
             );
           }
@@ -74,7 +71,7 @@ function HourlyWeather({
           return (
             <div
               key={loading ? index : data.time}
-              className="flex text-lg border border-gray-600 bg-gray-600 rounded-lg w-[336px] h-[60px] mx-2 my-4 items-center justify-between"
+              className="flex text-lg border border-gray-600  bg-gray-600 rounded-lg w-full max-w-[400px] sm:max-w-[540px] md:max-w-[500px] lg:max-w-[800px] h-[60px] mx-2 my-2 py-1 px-3 items-center justify-between "
             >
               <div className="flex items-center gap-4">
                 <WeatherDisplay
@@ -82,9 +79,9 @@ function HourlyWeather({
                   height="40px"
                   width="40px"
                 />
-                <div className="text-xl">{hourLabel}</div>
+                <div className="text-xl text-white">{hourLabel}</div>
               </div>
-              <div className="text-base font-medium mr-2 text-base">
+              <div className="text-base font-medium text-white">
                 {Math.round(temp)}°{unit}
               </div>
             </div>

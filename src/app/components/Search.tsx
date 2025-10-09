@@ -200,7 +200,7 @@ function Search({
       )}
 
       {weather && !error && (
-        <div className="flex justify-between px-[8%]">
+        <div className="flex flex-col lg:flex-row justify-center items-center xl:px-[8%] lg:px-[2%] px-2 gap-6">
           <nav>
             <MainWeather
               weather={{
@@ -222,8 +222,10 @@ function Search({
               precipitationUnit={precipitationUnit}
               loading={loading}
             />
-            <div className=" py-7">
-              <h1 className="text-xl font-semibold  pb-4">Daily forecast</h1>
+            <div className="lg:py-7 ">
+              <h1 className="text-xl font-semibold pb-4 flex lg:justify-start justify-center text-white">
+                Daily forecast
+              </h1>
               <DailyWeather
                 weekWeather={weekWeather}
                 unit={unit}
@@ -232,7 +234,7 @@ function Search({
             </div>
           </nav>
           {/* main right */}
-          <nav className="py-6">
+          <nav className="lg:py-6">
             <HourlyWeather
               hourlyData={hourlyData}
               selectedDate={localSelectedDate}
